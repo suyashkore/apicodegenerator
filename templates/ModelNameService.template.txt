@@ -1,0 +1,388 @@
+<?php
+
+namespace {{namespace}}\Services;
+
+use App\Feature\Shared\Helpers\ImageHelper;
+use {{namespace}}\Models\{{modelName}};
+use {{namespace}}\Repositories\{{modelName}}Repository;
+use App\Feature\Shared\Services\UserContext;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\File;
+use Maatwebsite\Excel\Facades\Excel;
+use Exception;
+
+/**
+ * Class {{modelName}}Service
+ *
+ * Service class to handle business logic for the {{modelName}} entity.
+ *
+ * @package {{namespace}}\Services
+ */
+class {{modelName}}Service
+{
+    /**
+     * The repository instance for interacting with the {{modelName}} model.
+     *
+     * @var {{modelName}}Repository
+     */
+    protected ${{modelNameCamelCase}}Repository;
+
+    /**
+     * {{modelName}}Service constructor.
+     *
+     * @param {{modelName}}Repository ${{modelNameCamelCase}}Repository
+     */
+    public function __construct({{modelName}}Repository ${{modelNameCamelCase}}Repository)
+    {
+        $this->{{modelNameCamelCase}}Repository = ${{modelNameCamelCase}}Repository;
+    }
+
+    /**
+     * Create a new {{modelName}} with the given data: C
+     *
+     * @param array $data
+     * @param UserContext $userContext
+     * @return {{modelName}}
+     */
+    public function create{{modelName}}(array $data, UserContext $userContext)
+    {
+        Log::info('Creating a new {{modelName}} in {{modelName}}Service', ['data' => $data, 'userContext' => ['userId' => $userContext->userId, 'tenantId' => $userContext->tenantId, 'loginId' => $userContext->loginId]]);
+        return $this->{{modelNameCamelCase}}Repository->create($data, $userContext);
+    }
+
+    /**
+     * Retrieve a {{modelName}} by its ID: R
+     *
+     * @param int $id
+     * @param UserContext $userContext
+     * @return {{modelName}}|null
+     */
+    public function get{{modelName}}ById(int $id, UserContext $userContext): ?{{modelName}}
+    {
+        Log::info('Fetching {{modelName}} by ID in {{modelName}}Service', ['id' => $id, 'userContext' => ['userId' => $userContext->userId, 'tenantId' => $userContext->tenantId, 'loginId' => $userContext->loginId]]);
+        return $this->{{modelNameCamelCase}}Repository->find($id, $userContext);
+    }
+
+    /**
+     * Retrieve all {{modelNamePlural}} based on filters, sorting, and pagination: R
+     *
+     * @param array $filters
+     * @param string $sortBy
+     * @param string $sortOrder
+     * @param int $perPage
+     * @param UserContext $userContext
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getAll{{modelNamePlural}}(array $filters, string $sortBy, string $sortOrder, int $perPage, UserContext $userContext)
+    {
+        Log::info('Fetching all {{modelNamePluralLowerCase}} with filters in {{modelName}}Service', ['filters' => $filters, 'sortBy' => $sortBy, 'sortOrder' => $sortOrder, 'perPage' => $perPage, 'userContext' => ['userId' => $userContext->userId, 'tenantId' => $userContext->tenantId, 'loginId' => $userContext->loginId]]);
+        return $this->{{modelNameCamelCase}}Repository->getAllWithPagination($filters, $sortBy, $sortOrder, $perPage, $userContext);
+    }
+
+    /**
+     * Update an existing {{modelName}} with the given data: U
+     *
+     * @param int $id
+     * @param array $data
+     * @param UserContext $userContext
+     * @return {{modelName}}|null
+     */
+    public function update{{modelName}}(int $id, array $data, UserContext $userContext): ?{{modelName}}
+    {
+        Log::info('Updating {{modelName}} in {{modelName}}Service', ['id' => $id, 'data' => $data, 'userContext' => ['userId' => $userContext->userId, 'tenantId' => $userContext->tenantId, 'loginId' => $userContext->loginId]]);
+        ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Repository->find($id, $userContext);
+        if (${{modelNameCamelCase}}) {
+            return $this->{{modelNameCamelCase}}Repository->update(${{modelNameCamelCase}}, $data, $userContext);
+        }
+        return null;
+    }
+
+    //TODO: Remove below method if not required.
+    /**
+     * Upload an image for the {{modelName}} and update the image URL in the database: U
+     *
+     * @param int $id
+     * @param \Illuminate\Http\UploadedFile $file
+     * @param UserContext $userContext
+     * @return string|null
+     * @throws Exception
+     */
+    public function uploadImage(int $id, $file, UserContext $userContext): ?string
+    {
+        Log::info('Uploading image for {{modelName}} in {{modelName}}Service', ['id' => $id, 'userContext' => ['userId' => $userContext->userId, 'tenantId' => $userContext->tenantId, 'loginId' => $userContext->loginId]]);
+        ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Repository->find($id, $userContext);
+        //TODO: Check the directory path and edit the folder name 'img' to something suitable
+        $storage_dir = 'public/images/{{modelNameLowerCase}}/img';
+        $filename_prefix = '{{modelNameLowerCase}}';
+
+        if (!${{modelNameCamelCase}}) {
+            throw new Exception('{{modelName}} not found');
+        }
+
+        // generate a unique file name but keep the same extension
+        $fileName = $filename_prefix . '_orig_' . $id . '.' . $file->getClientOriginalExtension();
+
+        // Store the file
+        $path = $file->storeAs($storage_dir, $fileName);
+
+        if (!$path) {
+            throw new Exception('Failed to upload image');
+        }
+
+        // generate a unique file name but keep the same extension
+        $newFileName = $filename_prefix . '_' . $id . '.' . 'jpeg';
+
+        // Optimize and convert the image
+        $optimizedUrl = ImageHelper::optimizeAndConvertImage($storage_dir, $fileName, $newFileName );
+
+        //TODO: Replace or update 'image_url' with relevant field of model {{modelName}}
+        // Update the image URL in the database
+        ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Repository->update(${{modelNameCamelCase}}, ['image_url' => $optimizedUrl], $userContext);
+
+        //TODO: Replace or update 'image_url' with relevant field of model {{modelName}}
+        return ${{modelNameCamelCase}}->image_url;
+    }
+
+    //TODO: Remove below method if not required.
+    /**
+     * Deactivate a {{modelName}} by setting its active field to false: U
+     *
+     * @param int $id
+     * @param UserContext $userContext
+     * @return {{modelName}}|null
+     */
+    public function deactivate{{modelName}}(int $id, UserContext $userContext): ?{{modelName}}
+    {
+        Log::info('Deactivating {{modelName}} in {{modelName}}Service', ['id' => $id, 'userContext' => ['userId' => $userContext->userId, 'tenantId' => $userContext->tenantId, 'loginId' => $userContext->loginId]]);
+        ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Repository->find($id, $userContext);
+        if (${{modelNameCamelCase}}) {
+            return $this->{{modelNameCamelCase}}Repository->update(${{modelNameCamelCase}}, ['active' => false], $userContext);
+        }
+        return null;
+    }
+
+    /**
+     * Delete a {{modelName}} by its ID: D
+     *
+     * @param int $id
+     * @param UserContext $userContext
+     * @return bool
+     */
+    public function delete{{modelName}}(int $id, UserContext $userContext): bool
+    {
+        Log::info('Deleting {{modelName}} in {{modelName}}Service', ['id' => $id, 'userContext' => ['userId' => $userContext->userId, 'tenantId' => $userContext->tenantId, 'loginId' => $userContext->loginId]]);
+        ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Repository->find($id, $userContext);
+        if (${{modelNameCamelCase}}) {
+            return $this->{{modelNameCamelCase}}Repository->delete(${{modelNameCamelCase}}, $userContext);
+        }
+        return false;
+    }
+
+    /**
+     * Generate a template for the {{modelName}} import XLSX file.
+     *
+     * @param UserContext $userContext
+     * @return string
+     * @throws Exception
+     */
+    public function generateXlsxTemplate(UserContext $userContext): string
+    {
+        Log::info('Generating xlsx template for {{modelNamePlural}} in {{modelName}}Service', ['userContext' => ['userId' => $userContext->userId, 'tenantId' => $userContext->tenantId, 'loginId' => $userContext->loginId]]);
+
+        // Retrieve the columns of the {{modelNamePluralLowerCase}} table
+        $columns = Schema::getColumnListing('{{tableName}}');
+
+        // Columns to exclude
+        $excludeColumns = ['created_by', 'updated_by', 'created_at', 'updated_at'];
+
+        // Prepare headers by excluding specified columns
+        $headers = array_filter($columns, function ($column) use ($excludeColumns) {
+            return !in_array($column, $excludeColumns);
+        });
+
+        // Create a temporary file path
+        $temp_dir = 'public/temp';
+        $directory = storage_path('app/' . $temp_dir);
+        $fileName = '{{modelNameLowerCase}}_template.xlsx';
+        $templatePath = $directory . '/' . $fileName;
+
+        // Ensure the directory exists
+        if (!File::exists($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+
+        try {
+            // Generate the template using Maatwebsite Excel
+            Excel::store(new class($headers) implements \Maatwebsite\Excel\Concerns\FromArray {
+                protected $headers;
+
+                public function __construct(array $headers)
+                {
+                    $this->headers = $headers;
+                }
+
+                public function array(): array
+                {
+                    return [$this->headers];
+                }
+            }, $temp_dir . '/' . $fileName, 'local', \Maatwebsite\Excel\Excel::XLSX);
+
+            Log::debug('XLSX template created successfully at ' . $templatePath);
+
+            // Check if the file was created
+            if (!File::exists($templatePath)) {
+                throw new \Exception("Failed to create the xlsx template file at $templatePath");
+            }
+
+            return $templatePath;
+
+        } catch (Exception $e) {
+            Log::error('Error generating XLSX template: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Import {{modelNamePlural}} from an Excel file.
+     *
+     * @param \Illuminate\Http\UploadedFile $file
+     * @param UserContext $userContext
+     * @return array
+     * @throws Exception
+     */
+    public function importFromXlsx($file, UserContext $userContext): array
+    {
+        Log::info('Importing {{modelNamePlural}} from xlsx in {{modelName}}Service', ['userContext' => ['userId' => $userContext->userId, 'tenantId' => $userContext->tenantId, 'loginId' => $userContext->loginId]]);
+
+        $importResult = [
+            'success' => true,
+            'message' => 'Import completed successfully',
+            'imported_count' => 0,
+            'errors' => []
+        ];
+
+        try {
+            $data = Excel::toArray(new class implements \Maatwebsite\Excel\Concerns\ToArray {
+                public function array(array $array)
+                {
+                    return $array;
+                }
+            }, $file);
+
+            if (empty($data) || !isset($data[0])) {
+                throw new Exception('The uploaded file is empty or invalid.');
+            }
+
+            ${{modelNameCamelCase}}s = $data[0];
+            $headers = array_shift(${{modelNameCamelCase}}s); // Remove the first row (headers)
+            //TODO Check if you would like to exclude '{{primaryKeyName}}'
+            $excludeColumns = ['{{primaryKeyName}}', 'created_by', 'updated_by', 'created_at', 'updated_at'];
+
+            foreach (${{modelNameCamelCase}}s as $index => ${{modelNameCamelCase}}Data) {
+                try {
+                    // Skip rows that don't have the required columns
+                    ${{modelNameCamelCase}}Data = array_combine($headers, ${{modelNameCamelCase}}Data);
+
+                    foreach ($excludeColumns as $excludeColumn) {
+                        unset(${{modelNameCamelCase}}Data[$excludeColumn]);
+                    }
+
+                    $this->{{modelNameCamelCase}}Repository->create(${{modelNameCamelCase}}Data, $userContext);
+                    $importResult['imported_count']++;
+                } catch (Exception $e) {
+                    Log::error('Failed to import {{modelNameCamelCase}} at row ' . ($index + 2) . ': ' . $e->getMessage());
+                    $importResult['errors'][] = 'Failed to import {{modelNameCamelCase}} at row ' . ($index + 2) . ': ' . $e->getMessage();
+                }
+            }
+            if (!empty($importResult['errors'])) {
+                $importResult['success'] = false;
+                $importResult['message'] = 'Import completed with errors';
+                Log::error('{{modelNamePlural}} import completed with errors');
+            }else{
+                Log::debug('{{modelNamePlural}} imported successfully');
+            }
+        } catch (Exception $e) {
+            Log::error('Error importing {{modelNamePlural}}: ' . $e->getMessage());
+            $importResult['success'] = false;
+            $importResult['message'] = 'Import failed: ' . $e->getMessage();
+        }
+
+        return $importResult;
+    }
+
+    /**
+     * Export {{modelNamePlural}} to an Excel file based on the given filters.
+     *
+     * @param array $filters
+     * @param string $sortBy
+     * @param string $sortOrder
+     * @param UserContext $userContext
+     * @return string
+     * @throws Exception
+     */
+    public function exportToXlsx(array $filters, string $sortBy, string $sortOrder, UserContext $userContext): string
+    {
+        Log::info('Exporting {{modelNamePlural}} to xlsx in {{modelName}}Service', ['filters' => $filters, 'sortBy' => $sortBy, 'sortOrder' => $sortOrder, 'userContext' => ['userId' => $userContext->userId, 'tenantId' => $userContext->tenantId, 'loginId' => $userContext->loginId]]);
+
+        // Fetch {{modelNamePluralLowerCase}} data for export
+        ${{modelNameCamelCase}}s = $this->{{modelNameCamelCase}}Repository->getAllWithoutPagination($filters, $sortBy, $sortOrder, $userContext);
+
+        // Convert {{modelNamePluralLowerCase}} to array
+        ${{modelNameCamelCase}}sArray = ${{modelNameCamelCase}}s->toArray();
+
+        // Retrieve the columns of the {{modelNamePluralLowerCase}} table
+        $columns = Schema::getColumnListing('{{tableName}}');
+
+        // Define the headers
+        $headers = $columns;
+
+        // Create a temporary file path
+        $directory = storage_path('app/public/temp');
+        $timestamp = now()->format('Ymd_His');
+        $fileName = '{{modelNamePluralLowerCase}}_export_' . $timestamp . '.xlsx';
+        $filePath = $directory . '/' . $fileName;
+
+        // Ensure the directory exists
+        if (!File::exists($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+
+        try {
+            // Generate the Excel file using Maatwebsite Excel
+            Excel::store(new class($headers, ${{modelNameCamelCase}}sArray) implements \Maatwebsite\Excel\Concerns\FromCollection, \Maatwebsite\Excel\Concerns\WithHeadings {
+                protected $headers;
+                protected ${{modelNameCamelCase}}s;
+
+                public function __construct(array $headers, array ${{modelNameCamelCase}}s)
+                {
+                    $this->headers = $headers;
+                    $this->{{modelNameCamelCase}}s = ${{modelNameCamelCase}}s;
+                }
+
+                public function collection()
+                {
+                    return collect($this->{{modelNameCamelCase}}s);
+                }
+
+                public function headings(): array
+                {
+                    return $this->headers;
+                }
+            }, 'public/temp/' . $fileName, 'local', \Maatwebsite\Excel\Excel::XLSX);
+
+            Log::debug('{{modelNamePlural}} exported successfully at ' . $filePath);
+
+            // Check if the file was created
+            if (!File::exists($filePath)) {
+                throw new \Exception("Failed to create the xlsx file at $filePath");
+            }
+
+            return $filePath;
+
+        } catch (Exception $e) {
+            Log::error('Error exporting {{modelNamePlural}} to XLSX: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+}

@@ -1,0 +1,340 @@
+<?php
+
+namespace {{namespace}}\Controllers;
+
+use {{namespace}}\Requests\{{modelName}}StoreRequest;
+use {{namespace}}\Requests\{{modelName}}UpdateRequest;
+use App\Feature\Shared\Requests\UploadImageRequest;
+use App\Feature\Shared\Requests\ImportXlsxRequest;
+use {{namespace}}\Services\{{modelName}}Service;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+/**
+ * Class {{modelName}}Controller
+ *
+ * Controller class to handle HTTP requests related to {{modelName}} entity.
+ *
+ * @package {{namespace}}\Controllers
+ */
+class {{modelName}}Controller extends Controller
+{
+    /**
+     * The service instance for handling business logic for the {{modelName}} entity.
+     *
+     * @var {{modelName}}Service
+     */
+    protected ${{modelNameCamelCase}}Service;
+
+    /**
+     * {{modelName}}Controller constructor.
+     *
+     * @param {{modelName}}Service ${{modelNameCamelCase}}Service
+     */
+    public function __construct({{modelName}}Service ${{modelNameCamelCase}}Service)
+    {
+        $this->{{modelNameCamelCase}}Service = ${{modelNameCamelCase}}Service;
+    }
+
+    /**
+     * Create a new {{modelName}}: C
+     *
+     * @param {{modelName}}StoreRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store({{modelName}}StoreRequest $request)
+    {
+        Log::debug('{{modelName}} store method called in {{modelName}}Controller');
+
+        // Validate request data
+        $validatedData = $request->validated();
+
+        // Extract user context from request
+        $userContext = $request->attributes->get('userContext');
+
+        try {
+            // Create a new {{modelName}} with validated data
+            ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Service->create{{modelName}}($validatedData, $userContext);
+            $response = response()->json(${{modelNameCamelCase}}, 201);
+            Log::info('{{modelName}} store method response from {{modelName}}Controller: ', $response->getData(true));
+            return $response;
+        } catch (\Exception $e) {
+            Log::error('Failed to create {{modelName}} in {{modelName}}Controller@store: ' . $e->getMessage());
+            return response()->json(['message' => 'Creation failed'], 500);
+        }
+    }
+
+    /**
+     * Retrieve a single {{modelName}} by its ID: R
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show($id, Request $request)
+    {
+        Log::debug("{{modelName}} show method called in {{modelName}}Controller for ID: $id");
+
+        // Extract user context from request
+        $userContext = $request->attributes->get('userContext');
+
+        // Fetch {{modelName}} by ID
+        ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Service->get{{modelName}}ById($id, $userContext);
+
+        if (${{modelNameCamelCase}}) {
+            $response = response()->json(${{modelNameCamelCase}});
+            Log::info('{{modelName}} show method response from {{modelName}}Controller: ', $response->getData(true));
+            return $response;
+        } else {
+            $error_response = response()->json(['message' => '{{modelName}} not found'], 404);
+            Log::error('Failed to retrieve {{modelName}} in {{modelName}}Controller@show: ', $error_response->getData(true));
+            return $error_response;
+        }
+    }
+
+    /**
+     * Retrieve a list of {{modelNamePlural}} with optional filters, sorting, and pagination : R
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index(Request $request)
+    {
+        Log::debug("{{modelName}} index method called in {{modelName}}Controller");
+
+        // Extract user context from request
+        $userContext = $request->attributes->get('userContext');
+
+        //TODO: Check if 'active' is a field in model {{modelName}}
+        // Extract filters, sorting, and pagination parameters from request
+        $filters = $request->only(['active', 'created_from', 'created_to', 'updated_from', 'updated_to']);
+        $sortBy = $request->get('sort_by', 'updated_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        $perPage = $request->get('per_page', 10);
+
+        try {
+            // Fetch {{modelNamePlural}} based on filters, sorting, and pagination
+            ${{modelNamePluralCamelCase}} = $this->{{modelNameCamelCase}}Service->getAll{{modelNamePlural}}($filters, $sortBy, $sortOrder, $perPage, $userContext);
+            $response = response()->json(${{modelNamePluralCamelCase}});
+            // Extract pagination details
+            $paginationDetails = [
+                'total' => ${{modelNamePluralCamelCase}}->total(),
+                'per_page' => ${{modelNamePluralCamelCase}}->perPage(),
+                'current_page' => ${{modelNamePluralCamelCase}}->currentPage(),
+                'from' => ${{modelNamePluralCamelCase}}->firstItem(),
+                'to' => ${{modelNamePluralCamelCase}}->lastItem(),
+            ];
+            Log::info('{{modelName}} index method response from {{modelName}}Controller: ', $paginationDetails);
+            return $response;
+        } catch (\Exception $e) {
+            Log::error('Error in {{modelName}}Controller@index: ' . $e->getMessage());
+            return response()->json(['message' => 'Error fetching data'], 500);
+        }
+    }
+
+    /**
+     * Update an existing {{modelName}}: U
+     *
+     * @param {{modelName}}UpdateRequest $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update({{modelName}}UpdateRequest $request, $id)
+    {
+        Log::debug("{{modelName}} update method called in {{modelName}}Controller for ID: $id");
+
+        // Validate request data
+        $validatedData = $request->validated();
+
+        // Extract user context from request
+        $userContext = $request->attributes->get('userContext');
+
+        try {
+            // Update {{modelName}} with validated data
+            ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Service->update{{modelName}}($id, $validatedData, $userContext);
+            if (!${{modelNameCamelCase}}) {
+                $error_response = response()->json(['message' => '{{modelName}} not found or update not possible'], 404);
+                Log::error('Failed to update {{modelName}} in {{modelName}}Controller@update:', $error_response->getData(true));
+                return $error_response;
+            }
+            $response = response()->json(${{modelNameCamelCase}});
+            Log::info('{{modelName}} update method response from {{modelName}}Controller: ', $response->getData(true));
+            return $response;
+        } catch (\Exception $e) {
+            Log::error('Failed to update {{modelName}} in {{modelName}}Controller@update: ' . $e->getMessage());
+            return response()->json(['message' => 'Update failed: ' . $e->getMessage()], 500);
+        }
+    }
+
+    //TODO: Remove below method if not required.
+    /**
+     * Upload an image for a {{modelName}}: U
+     *
+     * @param UploadImageRequest $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function uploadImage(UploadImageRequest $request, $id)
+    {
+        Log::debug("Uploading an image for {{modelName}} with ID: $id in {{modelName}}Controller");
+
+        // Validate request data
+        $validatedData = $request->validated();
+
+        // Extract user context from request
+        $userContext = $request->attributes->get('userContext');
+
+        try {
+            // Upload image and get the URL
+            $imageUrl = $this->{{modelNameCamelCase}}Service->uploadImage($id, $validatedData['img'], $userContext);
+            //TODO: Replace 'image_url' with the real field name
+            $response = response()->json(['image_url' => $imageUrl], 200);
+            Log::info('{{modelName}} uploadImage method response from {{modelName}}Controller: ', $response->getData(true));
+            return $response;
+        } catch (\Exception $e) {
+            Log::error('Failed to upload image in {{modelName}}Controller@uploadImage: ' . $e->getMessage());
+            return response()->json(['message' => 'Upload failed'], 500);
+        }
+    }
+
+    //TODO: Remove below method if not required.
+    /**
+     * Deactivate a {{modelName}} (soft delete): U
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deactivate($id, Request $request)
+    {
+        Log::debug("Deactivating {{modelName}} with ID: $id in {{modelName}}Controller");
+
+        // Extract user context from request
+        $userContext = $request->attributes->get('userContext');
+
+        // Deactivate {{modelName}} by ID
+        ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Service->deactivate{{modelName}}($id, $userContext);
+
+        if (${{modelNameCamelCase}}) {
+            $response = response()->json(['id' => $id, 'active' => false, 'message' => '{{modelName}} deactivated successfully'], 200);
+            Log::info('{{modelName}} deactivate method response from {{modelName}}Controller: ', $response->getData(true));
+            return $response;
+        } else {
+            $error_response = response()->json(['message' => '{{modelName}} not found or already deactivated'], 404);
+            Log::error('Failed to deactivate {{modelName}} in {{modelName}}Controller@deactivate: ', $error_response->getData(true));
+            return $error_response;
+        }
+    }
+
+    /**
+     * Delete a {{modelName}} permanently: D
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy($id, Request $request)
+    {
+        Log::debug("Attempting to delete {{modelName}} with ID: $id in {{modelName}}Controller");
+
+        // Extract user context from request
+        $userContext = $request->attributes->get('userContext');
+
+        if ($this->{{modelNameCamelCase}}Service->delete{{modelName}}($id, $userContext)) {
+            $response = response()->json(['id' => $id, 'deleted' => true, 'message' => '{{modelName}} deleted successfully'], 200);
+            Log::info('{{modelName}} destroy method response from {{modelName}}Controller: ', $response->getData(true));
+            return $response;
+        } else {
+            $error_response = response()->json(['message' => '{{modelName}} not found'], 404);
+            Log::error('Failed to delete {{modelName}} in {{modelName}}Controller@destroy: ', $error_response->getData(true));
+            return $error_response;
+        }
+    }
+
+    /**
+     * Generate and download an Excel template for importing {{modelNamePlural}}.
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\JsonResponse
+     */
+    public function xlsxTemplate(Request $request)
+    {
+        Log::debug('Downloading xlsx template in {{modelName}}Controller');
+
+        // Extract user context from request
+        $userContext = $request->attributes->get('userContext');
+
+        try {
+            // Generate and get the path of the template
+            $filePath = $this->{{modelNameCamelCase}}Service->generateXlsxTemplate($userContext);
+            Log::info('{{modelName}} xlsxTemplate method response from {{modelName}}Controller: ', ['file_path' => $filePath]);
+            return response()->download($filePath)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            Log::error('Failed to download xlsx template in {{modelName}}Controller@xlsxFormat: ' . $e->getMessage());
+            return response()->json(['message' => 'Download failed'], 500);
+        }
+    }
+
+    /**
+     * Import {{modelNamePlural}} from an Excel file.
+     *
+     * @param ImportXlsxRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function importXlsx(ImportXlsxRequest $request)
+    {
+        Log::debug('Importing {{modelNamePlural}} from xlsx in {{modelName}}Controller');
+
+        // Validate request data
+        $validatedData = $request->validated();
+
+        // Extract user context from request
+        $userContext = $request->attributes->get('userContext');
+
+        try {
+            // Import {{modelNamePlural}} from the provided Excel file
+            $result = $this->{{modelNameCamelCase}}Service->importFromXlsx($validatedData['file'], $userContext);
+            // Determine the response status based on the success flag
+            $status = $result['success'] ? 200 : 400;
+            $message = $result['success'] ? 'Import successful' : 'Import failed with errors';
+            $response = response()->json(['message' => $message, 'data' => $result], $status);
+            Log::info('{{modelName}} importXlsx method response from {{modelName}}Controller: ', $response->getData(true));
+            return $response;
+        } catch (\Exception $e) {
+            Log::error('Failed to import xlsx in {{modelName}}Controller@importXlsx: ' . $e->getMessage());
+            return response()->json(['message' => 'Import failed'], 500);
+        }
+    }
+
+    /**
+     * Export {{modelNamePlural}} to an Excel file based on filters.
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\JsonResponse
+     */
+    public function exportXlsx(Request $request)
+    {
+        Log::debug('Exporting {{modelNamePlural}} to xlsx in {{modelName}}Controller');
+
+        // Extract user context from request
+        $userContext = $request->attributes->get('userContext');
+
+        //TODO: Check if 'active' is a field in model {{modelName}}
+        // Extract filters, sorting, and pagination parameters from request
+        $filters = $request->only(['active', 'created_from', 'created_to', 'updated_from', 'updated_to']);
+        $sortBy = $request->get('sort_by', 'updated_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        try {
+            // Export {{modelNamePlural}} to an Excel file
+            $filePath = $this->{{modelNameCamelCase}}Service->exportToXlsx($filters, $sortBy, $sortOrder, $userContext);
+            Log::info('{{modelName}} exportXlsx method response from {{modelName}}Controller: ', ['file_path' => $filePath]);
+            return response()->download($filePath)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            Log::error('Failed to export xlsx in {{modelName}}Controller@exportXlsx: ' . $e->getMessage());
+            return response()->json(['message' => 'Export failed'], 500);
+        }
+    }
+
+}

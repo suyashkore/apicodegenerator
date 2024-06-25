@@ -1,0 +1,15 @@
+[
+  {
+    "modelName": "TenantKyc",
+    "modelNameCamelCase": "tenantKyc",
+    "modelNamePlural": "TenantKycs",
+    "modelNamePluralCamelCase": "tenantKycs",
+    "modelNamePluralLowerCase": "tenantkycs",
+    "modelNameLowerCase": "tenantkyc",
+    "modelNameUpperCase": "TENANTKYC",
+    "namespace": "App\\Feature\\User",
+    "tableName": "tenant_kyc",
+    "primaryKeyName": "id"
+  }
+]
+  
