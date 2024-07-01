@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
  * Each route is protected by the 'jwt.auth' and 'setUserContext' middleware to ensure the user is authenticated
  * and the user context is properly set.
  */
-
+//TODO: Check if below line should start with Route::prefix('modelname_lowercase_in_plural')->middleware(['jwt.auth', 'setUserContext'])->group(function () {
 Route::middleware(['jwt.auth', 'setUserContext'])->group(function () {
 
     // Route to create a new {{modelName}}: C
