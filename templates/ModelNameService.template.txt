@@ -120,8 +120,11 @@ class {{modelName}}Service
             throw new Exception('{{modelName}} not found');
         }
 
+        // Determine the file extension
+        $extension = strtolower($file->getClientOriginalExtension());
+
         // generate a unique file name but keep the same extension
-        $fileName = $filename_prefix . '_orig_' . $id . '.' . $file->getClientOriginalExtension();
+        $fileName = $filename_prefix . '_orig_' . $id . '.' . $extension;
 
         // Store the file
         $path = $file->storeAs($storage_dir, $fileName);
@@ -130,8 +133,12 @@ class {{modelName}}Service
             throw new Exception('Failed to upload image');
         }
 
-        // generate a unique file name but keep the same extension
-        $newFileName = $filename_prefix . '_' . $id . '.' . 'jpeg';
+        // Determine the new file name based on the extension
+        if ($extension === 'pdf') {
+            $newFileName = $filename_prefix . '_' . $id . '.' . 'pdf';
+        } else {
+            $newFileName = $filename_prefix . '_' . $id . '.' . 'jpeg';
+        }
 
         // Optimize and convert the image
         $optimizedUrl = ImageHelper::optimizeAndConvertImage($storage_dir, $fileName, $newFileName );
