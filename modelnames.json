@@ -10,6 +10,30 @@
     "namespace": "App\\Feature\\User",
     "tableName": "tenant_kyc",
     "primaryKeyName": "id"
+  },
+  {
+    "modelName": "User",
+    "modelNameCamelCase": "user",
+    "modelNamePlural": "Users",
+    "modelNamePluralCamelCase": "users",
+    "modelNamePluralLowerCase": "users",
+    "modelNameLowerCase": "user",
+    "modelNameUpperCase": "USER",
+    "namespace": "App\\Feature\\User",
+    "tableName": "users",
+    "primaryKeyName": "id"
+  },
+  {
+    "modelName": "Tenant",
+    "modelNameCamelCase": "tenant",
+    "modelNamePlural": "Tenants",
+    "modelNamePluralCamelCase": "tenants",
+    "modelNamePluralLowerCase": "tenants",
+    "modelNameLowerCase": "tenant",
+    "modelNameUpperCase": "TENANT",
+    "namespace": "App\\Feature\\Tenant",
+    "tableName": "tenants",
+    "primaryKeyName": "id"
   }
 ]
   

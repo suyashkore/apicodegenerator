@@ -2,7 +2,7 @@
 
 namespace {{namespace}}\Services;
 
-use App\Feature\Shared\Helpers\ImageHelper;
+use App\Feature\Shared\Helpers\ImgOrFileUploadHelper;
 use {{namespace}}\Models\{{modelName}};
 use {{namespace}}\Repositories\{{modelName}}Repository;
 use App\Feature\Shared\Services\UserContext;
@@ -100,21 +100,27 @@ class {{modelName}}Service
 
     //TODO: Remove below method if not required.
     /**
-     * Upload an image for the {{modelName}} and update the image URL in the database: U
-     *
-     * @param int $id
-     * @param \Illuminate\Http\UploadedFile $file
-     * @param UserContext $userContext
-     * @return string|null
-     * @throws Exception
-     */
-    public function uploadImage(int $id, $file, UserContext $userContext): ?string
+    * Upload an image or file for the {{modelName}} and update the URL in the database: U
+    *
+    * @param int $id
+    * @param \Illuminate\Http\UploadedFile $file
+    * @param string $urlFieldName
+    * @param UserContext $userContext
+    * @return string|null
+    * @throws Exception
+    */
+    public function uploadImgOrFileSrvc(int $id, $file, string $urlFieldName, UserContext $userContext): ?string
     {
-        Log::info('Uploading image for {{modelName}} in {{modelName}}Service', ['id' => $id, 'userContext' => ['userId' => $userContext->userId, 'tenantId' => $userContext->tenantId, 'loginId' => $userContext->loginId]]);
+        Log::info('Uploading file for {{modelName}} in {{modelName}}Service', ['id' => $id, 'userContext' => ['userId' => $userContext->userId, 'tenantId' => $userContext->tenantId, 'loginId' => $userContext->loginId]]);
         ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Repository->find($id, $userContext);
-        //TODO: Check the directory path and edit the folder name 'img' to something suitable
-        $storage_dir = 'public/images/{{modelNameLowerCase}}/img';
-        $filename_prefix = '{{modelNameLowerCase}}';
+
+        $storage_dir = 'public/files/{{modelNamePluralLowerCase}}/{{modelNameLowerCase}}'.$id;
+        $filename_prefix = $urlFieldName;
+        if (str_ends_with($filename_prefix, '_url')) {
+            $filename_prefix = substr($filename_prefix, 0, -4);
+        } elseif (str_ends_with($filename_prefix, 'url')) {
+            $filename_prefix = substr($filename_prefix, 0, -3);
+        }
 
         if (!${{modelNameCamelCase}}) {
             throw new Exception('{{modelName}} not found');
@@ -130,25 +136,19 @@ class {{modelName}}Service
         $path = $file->storeAs($storage_dir, $fileName);
 
         if (!$path) {
-            throw new Exception('Failed to upload image');
+            throw new Exception('Failed to upload file');
         }
 
-        // Determine the new file name based on the extension
-        if ($extension === 'pdf') {
-            $newFileName = $filename_prefix . '_' . $id . '.' . 'pdf';
-        } else {
-            $newFileName = $filename_prefix . '_' . $id . '.' . 'jpeg';
-        }
+        // New file name
+        $newFileName = $filename_prefix . '_' . $id . '.' . $extension;
 
-        // Optimize and convert the image
-        $optimizedUrl = ImageHelper::optimizeAndConvertImage($storage_dir, $fileName, $newFileName );
+        // Save the file and get the URL
+        $fileUrl = ImgOrFileUploadHelper::saveImgOrFile($storage_dir, $fileName, $newFileName);
 
-        //TODO: Replace or update 'image_url' with relevant field of model {{modelName}}
-        // Update the image URL in the database
-        ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Repository->update(${{modelNameCamelCase}}, ['image_url' => $optimizedUrl], $userContext);
+        // Update the URL in the database
+        ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Repository->update(${{modelNameCamelCase}}, [$urlFieldName => $fileUrl], $userContext);
 
-        //TODO: Replace or update 'image_url' with relevant field of model {{modelName}}
-        return ${{modelNameCamelCase}}->image_url;
+        return ${{modelNameCamelCase}}->$urlFieldName;
     }
 
     //TODO: Remove below method if not required.

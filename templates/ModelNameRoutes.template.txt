@@ -26,8 +26,8 @@ Route::middleware(['jwt.auth', 'setUserContext'])->group(function () {
     Route::put('/{id}', [{{modelName}}Controller::class, 'update'])->middleware('checkPrivileges:TENANT_ALL');
 
     //TODO: Check if this route is required for {{modelName}}
-    // Route to upload an image for a {{modelName}}: U
-    Route::post('/{id}/uploadimage', [{{modelName}}Controller::class, 'uploadImage'])->middleware('checkPrivileges:TENANT_ALL');
+    // Route to upload an image or file for a {{modelName}}: U
+    Route::post('/{id}/uploadimgorfile', [{{modelName}}Controller::class, 'uploadImgOrFile'])->middleware('checkPrivileges:TENANT_ALL');
 
     //TODO: Check if this route is required for {{modelName}}
     // Route to deactivate a {{modelName}} (soft delete): U
