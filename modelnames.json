@@ -1,5 +1,77 @@
 [
   {
+    "modelName": "Company",
+    "modelNameCamelCase": "company",
+    "modelNamePlural": "Companies",
+    "modelNamePluralCamelCase": "companies",
+    "modelNamePluralLowerCase": "companies",
+    "modelNameLowerCase": "company",
+    "modelNameUpperCase": "COMPANY",
+    "namespace": "App\\Feature\\Company",
+    "tableName": "companies",
+    "primaryKeyName": "id"
+  },
+  {
+    "modelName": "Vehicle",
+    "modelNameCamelCase": "vehicle",
+    "modelNamePlural": "Vehicles",
+    "modelNamePluralCamelCase": "vehicles",
+    "modelNamePluralLowerCase": "vehicles",
+    "modelNameLowerCase": "vehicle",
+    "modelNameUpperCase": "VEHICLE",
+    "namespace": "App\\Feature\\Fleet",
+    "tableName": "vehicles",
+    "primaryKeyName": "id"
+  },
+  {
+    "modelName": "DriverRate",
+    "modelNameCamelCase": "driverRate",
+    "modelNamePlural": "DriverRates",
+    "modelNamePluralCamelCase": "driverRates",
+    "modelNamePluralLowerCase": "driverrates",
+    "modelNameLowerCase": "driverrate",
+    "modelNameUpperCase": "DRIVERRATE",
+    "namespace": "App\\Feature\\Contract",
+    "tableName": "driver_rates",
+    "primaryKeyName": "id"
+  },
+  {
+    "modelName": "LoaderRate",
+    "modelNameCamelCase": "loaderRate",
+    "modelNamePlural": "LoaderRates",
+    "modelNamePluralCamelCase": "loaderRates",
+    "modelNamePluralLowerCase": "loaderrates",
+    "modelNameLowerCase": "loaderrate",
+    "modelNameUpperCase": "LOADERRATE",
+    "namespace": "App\\Feature\\Contract",
+    "tableName": "loader_rates",
+    "primaryKeyName": "id"
+  },
+  {
+    "modelName": "CpKyc",
+    "modelNameCamelCase": "cpKyc",
+    "modelNamePlural": "CpKycs",
+    "modelNamePluralCamelCase": "cpKycs",
+    "modelNamePluralLowerCase": "cpkycs",
+    "modelNameLowerCase": "cpkyc",
+    "modelNameUpperCase": "CPKYC",
+    "namespace": "App\\Feature\\Office",
+    "tableName": "cp_kyc",
+    "primaryKeyName": "id"
+  },
+  {
+    "modelName": "VendorKyc",
+    "modelNameCamelCase": "vendorKyc",
+    "modelNamePlural": "VendorKycs",
+    "modelNamePluralCamelCase": "vendorKycs",
+    "modelNamePluralLowerCase": "vendorkycs",
+    "modelNameLowerCase": "vendorkyc",
+    "modelNameUpperCase": "VENDORKYC",
+    "namespace": "App\\Feature\\Vendor",
+    "tableName": "vendor_kyc",
+    "primaryKeyName": "id"
+  },
+  {
     "modelName": "TenantKyc",
     "modelNameCamelCase": "tenantKyc",
     "modelNamePlural": "TenantKycs",
@@ -7,20 +79,8 @@
     "modelNamePluralLowerCase": "tenantkycs",
     "modelNameLowerCase": "tenantkyc",
     "modelNameUpperCase": "TENANTKYC",
-    "namespace": "App\\Feature\\User",
+    "namespace": "App\\Feature\\Tenant",
     "tableName": "tenant_kyc",
-    "primaryKeyName": "id"
-  },
-  {
-    "modelName": "User",
-    "modelNameCamelCase": "user",
-    "modelNamePlural": "Users",
-    "modelNamePluralCamelCase": "users",
-    "modelNamePluralLowerCase": "users",
-    "modelNameLowerCase": "user",
-    "modelNameUpperCase": "USER",
-    "namespace": "App\\Feature\\User",
-    "tableName": "users",
     "primaryKeyName": "id"
   },
   {
