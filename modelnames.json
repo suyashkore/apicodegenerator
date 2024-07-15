@@ -60,6 +60,18 @@
     "primaryKeyName": "id"
   },
   {
+    "modelName": "Vendor",
+    "modelNameCamelCase": "vendor",
+    "modelNamePlural": "Vendors",
+    "modelNamePluralCamelCase": "vendors",
+    "modelNamePluralLowerCase": "vendors",
+    "modelNameLowerCase": "vendor",
+    "modelNameUpperCase": "VENDOR",
+    "namespace": "App\\Feature\\Vendor",
+    "tableName": "vendors",
+    "primaryKeyName": "id"
+  },
+  {
     "modelName": "VendorKyc",
     "modelNameCamelCase": "vendorKyc",
     "modelNamePlural": "VendorKycs",
