@@ -1,5 +1,17 @@
 [
   {
+    "modelName": "StationCoverage",
+    "modelNameCamelCase": "stationCoverage",
+    "modelNamePlural": "StationCoverages",
+    "modelNamePluralCamelCase": "stationCoverages",
+    "modelNamePluralLowerCase": "stationcoverages",
+    "modelNameLowerCase": "stationcoverage",
+    "modelNameUpperCase": "STATIONCOVERAGE",
+    "namespace": "App\\Feature\\Station",
+    "tableName": "station_coverage",
+    "primaryKeyName": "id"
+  },
+  {
     "modelName": "Company",
     "modelNameCamelCase": "company",
     "modelNamePlural": "Companies",
