@@ -60,6 +60,18 @@
     "primaryKeyName": "id"
   },
   {
+    "modelName": "Office",
+    "modelNameCamelCase": "office",
+    "modelNamePlural": "Offices",
+    "modelNamePluralCamelCase": "offices",
+    "modelNamePluralLowerCase": "offices",
+    "modelNameLowerCase": "office",
+    "modelNameUpperCase": "OFFICE",
+    "namespace": "App\\Feature\\Office",
+    "tableName": "offices",
+    "primaryKeyName": "id"
+  },
+  {
     "modelName": "CpKyc",
     "modelNameCamelCase": "cpKyc",
     "modelNamePlural": "CpKycs",
